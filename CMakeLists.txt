@@ -10,6 +10,7 @@ endif()
 #  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow  -std=c++20 -fno-omit-frame-pointer -ggdb3 -O3")
 set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow  -std=c++20 -fno-omit-frame-pointer -ggdb3 -O3 -fsanitize=address")
 #  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow  -std=c++20 -fno-omit-frame-pointer -ggdb3 -O3 -fsanitize=memory -fsanitize-memory-track-origins")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error -Wno-error=unused-variable")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Boost COMPONENTS regex REQUIRED)
