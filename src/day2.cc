@@ -6,7 +6,9 @@
 #include <cassert>
 #include <deque>
 #include <iostream>
+#include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using Value = uint64_t;
@@ -39,6 +41,39 @@ void part1(Values const& values)
     fmt::print("1: {}\n", sum);
 }
 
+
+void part2(Values const& values)
+{
+    Value sum{0};
+
+    for (auto const& [v1, v2] : values) {
+        for (Value i{v1}; i <= v2; ++i) {
+            const std::string s{std::to_string(i)};
+            std::string_view sv(s);
+
+            for (unsigned sz{1}; sz <= (s.size() / 2); sz += 1) {
+                if (s.size() % sz)
+                    continue;
+
+                std::set<std::string_view> parts;
+
+                for (size_t from{0}; from < sv.size(); from += sz) {
+                    parts.insert(sv.substr(from, sz));
+                    if (parts.size() > 1)
+                        break;
+                }
+
+                if (parts.size() == 1) {
+                    sum += i;
+                    break;
+                }
+            }
+        }
+    }
+
+    fmt::print("2: {}\n", sum);
+}
+
 int main()
 {
     std::string line;
@@ -62,9 +97,8 @@ int main()
         values.push_back({v1, v2});
     }
 
-    part1(values);
-
-    //  fmt::print("2: {}\n", zeros2);
+    //  part1(values);
+    part2(values);
 
     return 0;
 }
