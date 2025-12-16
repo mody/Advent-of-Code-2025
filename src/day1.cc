@@ -1,7 +1,6 @@
 #include <fmt/core.h>
 
 #include <cassert>
-#include <cstdint>
 #include <iostream>
 #include <string>
 
@@ -9,7 +8,7 @@ int main()
 {
     int dial{50};
 
-    unsigned zeros{0};
+    unsigned zeros1{0}, zeros2{0};
 
     std::string line;
     while (std::getline(std::cin, line)) {
@@ -18,25 +17,29 @@ int main()
         }
 
         int ptr = std::stoi(&line[1]);
+        int sign{1};
+
         if (line.at(0) == 'L') {
-            ptr *= -1;
+            sign = -1;
         }
 
-        dial += ptr;
-
-        while (dial < 0) {
-            dial += 100;
+        for (int i{0}; i < ptr; ++i) {
+            dial = dial + (sign * 1);
+            if (dial >= 100)
+                dial -= 100;
+            if (dial < 0)
+                dial += 100;
+            if (dial == 0)
+                ++zeros2;
         }
-
-        dial %= 100;
 
         if (dial == 0) {
-            ++zeros;
+            ++zeros1;
         }
     }
 
-    fmt::print("1: {}\n", zeros);
-    //  fmt::print("2: {}\n", sum);
+    fmt::print("1: {}\n", zeros1);
+    fmt::print("2: {}\n", zeros2);
 
     return 0;
 }
