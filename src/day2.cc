@@ -97,7 +97,7 @@ int main()
         values.push_back({v1, v2});
     }
 
-    //  part1(values);
+    part1(values);
     part2(values);
 
     return 0;
