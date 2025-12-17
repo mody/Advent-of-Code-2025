@@ -5,11 +5,11 @@ if(POLICY CMP0167)
   cmake_policy(SET CMP0167 NEW)
 endif()
 
-#  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow -std=c++20 -fno-omit-frame-pointer -ggdb3 -O0")
-#  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow -std=c++20 -fno-omit-frame-pointer -ggdb3 -O0 -fsanitize=address")
-#  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow  -std=c++20 -fno-omit-frame-pointer -ggdb3 -O3")
-set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow  -std=c++20 -fno-omit-frame-pointer -ggdb3 -O3 -fsanitize=address")
-#  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow  -std=c++20 -fno-omit-frame-pointer -ggdb3 -O3 -fsanitize=memory -fsanitize-memory-track-origins")
+#  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow -std=c++23 -fno-omit-frame-pointer -ggdb3 -O0")
+#  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow -std=c++23 -fno-omit-frame-pointer -ggdb3 -O0 -fsanitize=address")
+#  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow  -std=c++23 -fno-omit-frame-pointer -ggdb3 -O3")
+set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow  -std=c++23 -fno-omit-frame-pointer -ggdb3 -O3 -fsanitize=address")
+#  set(CMAKE_CXX_FLAGS "-Wall -Werror -Wshadow  -std=c++23 -fno-omit-frame-pointer -ggdb3 -O3 -fsanitize=memory -fsanitize-memory-track-origins")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error -Wno-error=unused-variable")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -30,14 +30,19 @@ find_package(fmt REQUIRED)
 
 set (DEFAULT_LIBS fmt)
 
-add_executable(day1 src/day1.cc)
-target_compile_features(day1 PRIVATE cxx_std_23)
-target_link_libraries(day1 PRIVATE ${DEFAULT_LIBS})
+function(add_day_exe day_name)
+  add_executable(${day_name} src/${day_name}.cc)
+  target_compile_features(${day_name} PRIVATE cxx_std_23)
 
-add_executable(day2 src/day2.cc)
-target_compile_features(day2 PRIVATE cxx_std_23)
-target_link_libraries(day2 PRIVATE ${DEFAULT_LIBS})
+  # DEFAULT_LIBS + any extra libs passed to the function
+  target_link_libraries(${day_name} PRIVATE ${DEFAULT_LIBS} ${ARGN})
+endfunction()
 
-add_executable(day3 src/day3.cc)
-target_compile_features(day3 PRIVATE cxx_std_23)
-target_link_libraries(day3 PRIVATE ${DEFAULT_LIBS})
+# example with extra dependency
+#  add_day_exe(day2 fmt::fmt)          # day2 needs an extra dep
+
+add_day_exe(day1)
+add_day_exe(day2)
+add_day_exe(day3)
+add_day_exe(day4)
+
