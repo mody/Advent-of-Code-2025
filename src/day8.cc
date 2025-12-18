@@ -1,6 +1,7 @@
 #include "point3d.h"
 
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -8,8 +9,8 @@
 #include <cassert>
 #include <deque>
 #include <iostream>
-#include <limits>
 #include <map>
+#include <set>
 #include <string>
 #include <unordered_set>
 
@@ -18,77 +19,95 @@ using Point = Gfx_3d::Point<Coord>;
 using Points = std::unordered_set<Point>;
 using PointMap = std::unordered_map<Point, int>;
 
-int get_id()
+struct Connection {
+    Point from, to;
+    double dist;
+};
+
+unsigned get_id()
 {
     static int last = 0;
     return ++last;
 }
 
 
-void part1(Points const& points)
+void process(Points const& points)
 {
-    PointMap pointmap;
+    auto print_part1 = [](const PointMap& pm)
+    {
+        std::map<int, std::vector<Point>> g1;
+        for (auto const& [px, id] : pm) {
+            g1[id].push_back(px);
+        }
 
+        std::vector<size_t> sizes;
+        for (auto const& [id, group] : g1) {
+            if (id)
+                sizes.push_back(group.size());
+        }
+        std::ranges::sort(sizes, std::greater{});
+        fmt::print("1: {}\n", sizes.at(0) * sizes.at(1) * sizes.at(2));
+    };
+
+    PointMap pointmap;
     for (auto const& px : points) {
         pointmap.insert({px, 0});
     }
 
-    for (int i{0}; i < 10; ++i) {
-        Point a, b;
-        double dist{std::numeric_limits<double>::max()};
+    std::vector<Connection> connections;
+    for (auto it1{points.cbegin()}; it1 != points.cend(); ++it1) {
+        for (auto it2{std::next(it1)}; it2 != points.cend(); ++it2) {
+            connections.push_back({.from = *it1, .to = *it2, .dist = it1->euclidean_dist(*it2)});
+        }
+    }
 
-        for (auto it1{pointmap.cbegin()}; it1 != pointmap.cend(); ++it1) {
-            if (it1->second)
-                continue;
+    std::ranges::sort(connections, [](const auto& a, const auto& b) { return a.dist < b.dist; });
 
-            for (auto it2{pointmap.cbegin()}; it2 != pointmap.cend(); ++it2) {
-                if (it1 == it2)
-                    continue;
+    std::map<unsigned, unsigned> ids;
+    ids.insert({0u, pointmap.size()});
 
-                const double oth_dist{it1->first.euclidean_dist(it2->first)};
-                //  fmt::print(
-                //          "{}: test are ({}, {}, {}) and ({}, {}, {}) = {:.5f}\n",
-                //          i,
-                //          it1->first.x,
-                //          it1->first.y,
-                //          it1->first.z,
-                //          it2->first.x,
-                //          it2->first.y,
-                //          it2->first.z,
-                //          oth_dist);
-                if (oth_dist < dist) {
-                    a = it1->first;
-                    b = it2->first;
-                    dist = oth_dist;
+    int iter{0};
+    for (auto const& c : connections) {
+        auto& id1{pointmap.at(c.from)};
+        auto& id2{pointmap.at(c.to)};
+
+        if (id1 == 0 && id2 == 0) {
+            ids.at(id1) -= 1;
+            ids.at(id2) -= 1;
+            id1 = id2 = get_id();
+            ids.insert({id1, 2});
+        }
+        else if (id1 == 0) {
+            ids.at(id1) -= 1;
+            ids.at(id2) += 1;
+            id1 = id2;
+        }
+        else if (id2 == 0) {
+            ids.at(id2) -= 1;
+            ids.at(id1) += 1;
+            id2 = id1;
+        } else if (id1 != id2) {
+            // merge
+            const int old_id{std::max(id2, id1)};
+            const int new_id{std::min(id2, id1)};
+            for (auto& [px, id3] : pointmap) {
+                if (id3 == old_id) {
+                    id3 = new_id;
+                    ids.at(old_id) -= 1;
+                    ids.at(new_id) += 1;
                 }
             }
+            ids.erase(old_id);
+        }
+        assert(id1 == id2);
+        if (++iter == 1000) {
+            print_part1(pointmap);
         }
 
-        assert(dist != std::numeric_limits<double>::max());
-
-        int next_id{pointmap.at(b)};
-        if (!next_id) {
-            next_id = get_id();
-            pointmap.at(b) = next_id;
+        if (iter >= 10 && ids.contains(1) && ids.at(1) == pointmap.size()) {
+            fmt::print("2: {}\n", c.from.x * c.to.x);
+            break;
         }
-        assert(pointmap.at(a) == 0);
-        pointmap.at(a) = next_id;
-
-        fmt::print("{}: shortest are ({}, {}, {}) and ({}, {}, {}) = {}\n", i, a.x, a.y, a.z, b.x, b.y, b.z, dist);
-    }
-
-    std::map<int, std::vector<Point>> groups;
-
-    for (auto const& [px, id] : pointmap) {
-        groups[id].push_back(px);
-    }
-
-    for (auto const& [id, group] : groups) {
-        fmt::print("{}:\t", id);
-        for (auto const& px : group) {
-            fmt::print("({}, {}, {}), ", px.x, px.y, px.z);
-        }
-        fmt::print("\n");
     }
 }
 
@@ -110,7 +129,7 @@ int main()
         }
     }
 
-    part1(points);
+    process(points);
 
     return 0;
 }
