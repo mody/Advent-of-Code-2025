@@ -77,6 +77,11 @@ struct Point
         return std::abs(x - o.x) + std::abs(y - o.y) + std::abs(z - o.z);
     }
 
+    [[nodiscard]] constexpr double euclidean_dist(Point const& o) const noexcept
+    {
+        return std::sqrt(std::pow(x - o.x, 2) + std::pow(y - o.y, 2) + std::pow(z - o.z, 2));
+    }
+
     friend size_t hash_value(Gfx_3d::Point<Coord> const& p) noexcept {
         size_t seed = 0;
         boost::hash_combine(seed, p.x);

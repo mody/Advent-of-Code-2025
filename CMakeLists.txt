@@ -48,4 +48,5 @@ add_day_exe(day4)
 add_day_exe(day5)
 add_day_exe(day6)
 add_day_exe(day7)
+add_day_exe(day8)
 
