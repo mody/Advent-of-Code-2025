@@ -131,7 +131,7 @@ int main()
 
     assert(ops.size() == values.at(0).size());
 
-    //  part1(values, ops);
+    part1(values, ops);
     part2(input);
 
     return 0;
