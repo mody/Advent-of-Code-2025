@@ -52,4 +52,5 @@ add_day_exe(day8)
 add_day_exe(day9)
 add_day_exe(day10 tbb)
 add_day_exe(day11)
+add_day_exe(day12)
 
